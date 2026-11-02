@@ -1,0 +1,5 @@
+---
+// Link, sobald ein Ziel vorhanden ist; sonst sichtbares Element ohne Ziel.
+const { href, ...rest } = Astro.props;
+---
+{href ? <a href={href} {...rest}><slot /></a> : <span aria-disabled="true" {...rest}><slot /></span>}

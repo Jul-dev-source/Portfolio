@@ -1,0 +1,61 @@
+---
+import Icon from './Icon.astro';
+import Maybe from './Maybe.astro';
+import { inline } from '../lib/content';
+import { links } from '../lib/links';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+const { site } = Astro.props;
+const wordmark = readFileSync(join(process.cwd(), 'src/components/wordmark-path.txt'), 'utf8');
+---
+<section id="contact" class="contact" aria-labelledby="contact-title">
+  <h2 id="contact-title" set:html={inline(site.contact.title)} />
+  <p>{site.contact.text}</p>
+  <a class="email" href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+  <Maybe class="pill" href={links.resume}><Icon name="download" />{site.contact.resume}</Maybe>
+</section>
+
+<footer class="footer">
+  <div class="footer__meta"><span>{site.footer.copyright}</span><span>{site.footer.role}</span></div>
+  <svg class="wordmark" viewBox="0 0 5172 720" role="img" aria-label={site.footer.wordmark} fill="currentColor"><path d={wordmark} /></svg>
+</footer>
+
+<style>
+  .contact { padding: var(--space-10) var(--gutter); border-top: 1px solid var(--color-border); }
+  h2 { font-size: var(--text-contact); font-weight: var(--weight-medium); line-height: 1.1; letter-spacing: var(--tracking-tight); text-wrap: balance; }
+  p { margin-top: var(--space-4); font-size: var(--text-lg); color: var(--color-text-muted); }
+  .email {
+    display: inline-block;
+    margin-top: var(--space-5);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-tight);
+    transition: color var(--transition);
+  }
+  .email:hover { color: var(--color-accent); }
+  .pill { display: flex; width: fit-content; margin-top: var(--space-5); }
+  .pill :global(svg) { width: var(--space-4); height: var(--space-4); }
+  .footer { padding: var(--space-8) var(--gutter) var(--space-6); }
+  .footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-5);
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    letter-spacing: 0;
+  }
+  .wordmark { width: 100%; height: auto; margin-top: var(--space-5); color: var(--color-wordmark); }
+
+  @media (max-width: 1099px) {
+    h2 { max-width: 12em; }
+    p { max-width: 28em; font-size: var(--text-md); }
+    .contact { padding-block: var(--space-9) var(--space-8); }
+  }
+  @media (max-width: 639px) {
+    h2 { max-width: 6em; line-height: 1.05; }
+    .email { font-size: var(--text-lg); }
+    .footer { padding-top: var(--space-5); }
+    .footer__meta { flex-direction: column; }
+  }
+</style>
