@@ -1,0 +1,194 @@
+---
+import Base from '../components/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Icon from '../components/Icon.astro';
+import Maybe from '../components/Maybe.astro';
+import { getGlobal, getHome } from '../lib/content';
+import { links, navTargets } from '../lib/links';
+
+const site = getGlobal();
+const home = getHome();
+const [greeting, name] = home.about.title.split(site.name);
+---
+<Base title={site.name} description={home.hero.text}>
+  <Header site={site} />
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="orbit" role="img" aria-label={`Julian Fohringer with his tools: ${home.hero.tools.join(', ')}`}>
+        <img class="orbit__photo" src="/images/avatar.webp" alt="" width="276" height="276" />
+        {home.hero.tools.map((tool) => (
+          <span class={`orbit__tool orbit__tool--${tool.toLowerCase()}`}><Icon name={tool.toLowerCase()} /></span>
+        ))}
+      </div>
+      <div class="hero__text">
+        <h1 id="hero-title">{home.hero.title}</h1>
+        <p>{home.hero.text}</p>
+        <div class="hero__actions">
+          {home.hero.actions.map((action, i) => (
+            <a class={`btn ${i === 0 ? 'btn--primary' : 'btn--secondary'}`} href={navTargets[action]}>{action}</a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="intro"><p>{home.intro}</p></section>
+
+    <section id="work" class="work" aria-labelledby="work-title">
+      <div class="work__head">
+        <h2 id="work-title">{home.work.title}</h2>
+        <p>{home.work.text}</p>
+      </div>
+      <ul class="cards">
+        {home.work.projects.map((project) => (
+          <li class="card">
+            <div class="card__text">
+              {project.tag && <span class="tag">{project.tag}</span>}
+              <h3>{project.title}</h3>
+              <Maybe class="btn btn--primary card__cta" href={links.projects[project.slug]}>{project.cta}</Maybe>
+            </div>
+            <img class="card__image" src={`/images/projects/${project.slug}.webp`} alt={`Preview of ${project.title.split(':')[0]}`} loading="lazy" />
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="about" class="about" aria-labelledby="about-title">
+      <img class="about__photo" src="/images/portrait.webp" alt="Portrait of Julian Fohringer" width="922" height="916" loading="lazy" />
+      <div class="about__text">
+        <h2 id="about-title">{greeting}<span>{site.name}{name}</span></h2>
+        {home.about.text.map((paragraph) => <p>{paragraph}</p>)}
+        <ul class="social">
+          {home.about.links.map((label) => {
+            const key = label.toLowerCase();
+            return <li><Maybe class="social__link" href={links[key]} aria-label={label}><Icon name={key} /></Maybe></li>;
+          })}
+        </ul>
+      </div>
+    </section>
+  </main>
+  <Footer site={site} />
+</Base>
+
+<style>
+  /* Hero */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-11) var(--gutter) var(--space-12);
+  }
+  .orbit { position: relative; width: 100%; max-width: 26.5rem; aspect-ratio: 270 / 281; margin-left: var(--space-7); }
+  .orbit__photo, .orbit__tool { position: absolute; border-radius: var(--radius-full); }
+  .orbit__photo { left: 29%; top: 34%; width: 34%; height: auto; }
+  .orbit__tool { display: grid; place-items: center; width: 23%; aspect-ratio: 1; background: var(--color-surface); }
+  .orbit__tool :global(svg) { width: 48%; height: 48%; }
+  .orbit__tool--figma { left: 0; top: 15%; }
+  .orbit__tool--figma :global(svg) { height: 50%; }
+  .orbit__tool--clickup { left: 48%; top: 0; background: var(--color-text); }
+  .orbit__tool--claude { left: 77%; top: 39%; background: var(--color-tool-claude); color: var(--color-text); }
+  .orbit__tool--claude :global(svg) { width: 62%; height: 62%; }
+  .orbit__tool--notion { left: 0; top: 63%; color: var(--color-text); }
+  .orbit__tool--framer { left: 48%; top: 78%; background: var(--color-tool-framer); color: var(--color-text); }
+
+  .hero__text h1 {
+    font-size: var(--text-hero);
+    font-weight: var(--weight-medium);
+    line-height: 1.1;
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-highlight);
+  }
+  .hero__text p { max-width: 27em; margin-top: var(--space-3); font-size: var(--text-lg); color: var(--color-text-muted); }
+  .hero__actions { display: flex; gap: var(--space-3); margin-top: var(--space-6); }
+
+  /* Intro */
+  .intro { padding: 0 var(--gutter) var(--space-10); }
+  .intro p {
+    max-width: 19em;
+    margin-inline: auto;
+    font-size: var(--text-statement);
+    font-weight: var(--weight-medium);
+    line-height: 1.25;
+    letter-spacing: var(--tracking-tight);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  /* Selected Work */
+  .work { padding-inline: var(--gutter); }
+  .work__head h2 { font-size: var(--text-section); font-weight: var(--weight-medium); letter-spacing: var(--tracking-tight); line-height: 1.2; }
+  .work__head p { max-width: 27em; margin-top: var(--space-3); font-size: var(--text-lg); color: var(--color-text-muted); }
+  .cards { display: grid; gap: var(--space-3); margin: var(--space-9) var(--space-4) 0; }
+  .card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    min-height: 22.5rem;
+    padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: border-color var(--transition);
+  }
+  .card:hover { border-color: var(--color-text-subtle); }
+  .card__text { display: grid; justify-items: start; gap: var(--space-4); min-width: 0; max-width: 34rem; }
+  .card h3 { font-size: var(--text-card); font-weight: var(--weight-medium); line-height: 1.2; letter-spacing: var(--tracking-tight); text-wrap: balance; }
+  .card__cta { min-height: var(--control-md); font-size: var(--text-md); letter-spacing: var(--tracking-snug); }
+  .card__image { width: 41%; flex: none; aspect-ratio: 1.6; object-fit: cover; border-radius: var(--radius-md); }
+  .tag {
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    letter-spacing: 0;
+  }
+
+  /* About */
+  .about { display: grid; grid-template-columns: 1fr 1fr; align-items: center; margin-top: var(--space-7); }
+  .about__photo { width: 100%; height: 100%; object-fit: cover; }
+  .about__text { padding: var(--space-7) var(--gutter) var(--space-7) var(--space-7); }
+  .about h2 { font-size: var(--text-about); font-weight: var(--weight-medium); line-height: 1.15; letter-spacing: var(--tracking-tight); }
+  .about h2 span { color: var(--color-text-muted); }
+  .about p { margin-top: var(--space-5); font-size: var(--text-lg); color: var(--color-text-subtle); }
+  .about h2 + p { margin-top: var(--space-5); }
+  .social { display: flex; gap: var(--space-3); margin-top: var(--space-6); }
+  .social__link { display: grid; place-items: center; width: var(--control-md); height: var(--control-md); background: var(--color-surface); border-radius: var(--radius-full); transition: color var(--transition); }
+  a.social__link:hover { color: var(--color-accent); }
+  .social__link :global(svg) { width: var(--text-lg); height: var(--text-lg); }
+
+  /* Tablet */
+  @media (max-width: 1099px) {
+    .hero { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: var(--space-9); padding-block: var(--space-9) var(--space-12); text-align: center; }
+    .orbit { max-width: 22rem; margin-inline: auto; }
+    .hero__text { display: grid; justify-items: center; }
+    .hero__text p { max-width: 26em; }
+    .intro { padding-bottom: var(--space-9); }
+    .cards { margin: var(--space-7) 0 0; }
+    .card { min-height: 15rem; }
+    .card__text { max-width: 24rem; }
+    .about { grid-template-columns: minmax(0, 1fr); }
+    .about__photo { aspect-ratio: 1.05; height: auto; }
+    .about__text { padding: var(--space-7) var(--gutter) var(--space-8); }
+    .about p { max-width: 34em; }
+    .card__image { width: 38%; }
+      }
+
+  /* Mobile */
+  @media (max-width: 639px) {
+    .hero { padding-block: var(--space-7) var(--space-12); gap: var(--space-6); }
+    .orbit { max-width: 18.5rem; }
+    .hero__actions { flex-direction: column; align-self: stretch; width: 100%; }
+    .hero__text { width: 100%; }
+    .hero__actions .btn { width: 100%; }
+    .intro p { max-width: none; }
+    .cards { margin-top: var(--space-7); }
+    .card { flex-direction: column-reverse; align-items: stretch; min-height: 0; padding: var(--space-4); }
+    .card__image { width: 100%; }
+    .card__text { max-width: none; }
+    .about { margin-top: var(--space-8); }
+    .about__photo { aspect-ratio: 1.28; object-position: 50% 30%; }
+    .about__text { padding: var(--space-6) var(--space-4) var(--space-7); }
+  }
+</style>
